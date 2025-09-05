@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VSCodium 更新服务器管理后台</title>
+    <link rel="stylesheet" href="admin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- 侧边栏覆盖层 -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        
+        <!-- 侧边栏 -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-code-branch"></i> VSCodium 管理</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="menu-item active" data-tab="dashboard">
+                    <i class="fas fa-tachometer-alt"></i> 仪表板
+                </li>
+                <li class="menu-item" data-tab="versions">
+                    <i class="fas fa-tags"></i> 版本管理
+                </li>
+                <li class="menu-item" data-tab="upload">
+                    <i class="fas fa-upload"></i> 文件上传
+                </li>
+                <li class="menu-item" data-tab="config">
+                    <i class="fas fa-cog"></i> 服务器配置
+                </li>
+                <li class="menu-item" data-tab="logs">
+                    <i class="fas fa-file-alt"></i> 日志查看
+                </li>
+            </ul>
+        </nav>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 头部 -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 id="page-title">仪表板</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" id="refreshDataBtn">
+                        <i class="fas fa-sync-alt"></i> 刷新
+                    </button>
+                </div>
+            </header>
+
+            <!-- 仪表板 -->
+            <div id="dashboard" class="tab-content active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fab fa-windows"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="windows-version">-</h3>
+                            <p>Windows 版本</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fab fa-apple"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="darwin-version">-</h3>
+                            <p>macOS 版本</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fab fa-linux"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="linux-version">-</h3>
+                            <p>Linux 版本</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="server-status">运行中</h3>
+                            <p>服务器状态</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-activity">
+                    <h3>最近活动</h3>
+                    <div class="activity-list" id="activity-list">
+                        <!-- 动态加载活动记录 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 版本管理 -->
+            <div id="versions" class="tab-content">
+                <div class="version-management">
+                    <div class="management-header">
+                        <h2>版本管理</h2>
+                        <p class="subtitle">管理VSCodium的版本发布和下载</p>
+                    </div>
+
+                    <!-- 快速操作区域 -->
+                    <div class="quick-actions">
+                        <div class="action-card" id="openVersionWizardBtn">
+                            <div class="action-icon">
+                                <i class="fas fa-plus-circle"></i>
+                            </div>
+                            <div class="action-content">
+                                <h3>发布新版本</h3>
+                                <p>上传新的VSCodium版本文件</p>
+                            </div>
+                        </div>
+                        
+                        <div class="action-card" id="showCurrentVersionsBtn">
+                            <div class="action-icon">
+                                <i class="fas fa-list"></i>
+                            </div>
+                            <div class="action-content">
+                                <h3>当前版本</h3>
+                                <p>查看各平台的当前版本</p>
+                            </div>
+                        </div>
+                        
+                        <div class="action-card" id="showVersionHistoryBtn">
+                            <div class="action-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div class="action-content">
+                                <h3>版本历史</h3>
+                                <p>查看历史版本记录</p>
+                            </div>
+                        </div>
+                        
+                        <div class="action-card" id="showDownloadLogsBtn">
+                            <div class="action-icon">
+                                <i class="fas fa-download"></i>
+                            </div>
+                            <div class="action-content">
+                                <h3>下载日志</h3>
+                                <p>查看下载统计和日志</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 内容显示区域 -->
+                    <div id="version-content" class="version-content">
+                        <!-- 动态内容将在这里显示 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 文件上传 -->
+            <div id="upload" class="tab-content">
+                <div class="upload-section">
+                    <h3>上传更新文件</h3>
+                    <form id="upload-form" class="upload-form">
+                        <div class="form-group">
+                            <label for="platform-select">目标平台</label>
+                            <select id="platform-select" required>
+                                <option value="win32">Windows</option>
+                                <option value="darwin">macOS</option>
+                                <option value="linux">Linux</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="version-input">版本号</label>
+                            <input type="text" id="version-input" placeholder="例如: 1.2.3" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="file-input">选择文件</label>
+                            <div class="file-upload-area" id="file-upload-area">
+                                <input type="file" id="file-input" multiple accept=".exe,.dmg,.deb,.rpm,.tar.gz,.zip">
+                                <div class="upload-placeholder">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>点击选择文件或拖拽文件到此处</p>
+                                    <small>支持 .exe, .dmg, .deb, .rpm, .tar.gz, .zip 格式</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="custom-url">自定义下载地址 (可选)</label>
+                            <input type="url" id="custom-url" placeholder="https://your-cdn.com/releases/">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-large">
+                            <i class="fas fa-upload"></i> 开始上传
+                        </button>
+                    </form>
+
+                    <div class="upload-progress" id="upload-progress" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <div class="progress-text" id="progress-text">上传中... 0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 服务器配置 -->
+            <div id="config" class="tab-content">
+                <div class="config-section">
+                    <h3>服务器配置</h3>
+                    <form id="config-form" class="config-form">
+                        <div class="config-grid">
+                            <div class="form-group">
+                                <label for="server-port">服务器端口</label>
+                                <input type="number" id="server-port" min="1" max="65535">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="server-host">服务器主机</label>
+                                <input type="text" id="server-host" placeholder="localhost">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="custom-download-url">自定义下载基础URL</label>
+                                <input type="url" id="custom-download-url" placeholder="https://your-cdn.com/releases">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="max-file-size">最大文件大小 (MB)</label>
+                                <input type="number" id="max-file-size" min="1" max="5000">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="api-key">API 密钥</label>
+                                <input type="password" id="api-key" placeholder="留空表示不使用">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="log-level">日志级别</label>
+                                <select id="log-level">
+                                    <option value="error">Error</option>
+                                    <option value="warn">Warning</option>
+                                    <option value="info">Info</option>
+                                    <option value="debug">Debug</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="loadConfigBtn">
+                                <i class="fas fa-undo"></i> 重置
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> 保存配置
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 日志查看 -->
+            <div id="logs" class="tab-content">
+                <div class="logs-section">
+                    <div class="logs-header">
+                        <h3>服务器日志</h3>
+                        <div class="logs-controls">
+                            <button class="btn btn-secondary" id="clearLogsBtn">
+                                <i class="fas fa-trash"></i> 清空日志
+                            </button>
+                            <button class="btn btn-primary" id="refreshLogsBtn">
+                                <i class="fas fa-sync-alt"></i> 刷新
+                            </button>
+                        </div>
+                    </div>
+                    <div class="logs-container">
+                        <pre id="logs-content">正在加载日志...</pre>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 版本发布向导模态框 -->
+    <div id="versionWizardModal" class="modal">
+        <div class="modal-content wizard-modal">
+            <div class="modal-header">
+                <h3>发布新版本</h3>
+                <span class="close" id="closeWizardModalBtn">&times;</span>
+            </div>
+            
+            <!-- 步骤指示器 -->
+            <div class="wizard-steps">
+                <div class="step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-title">版本信息</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-title">上传文件</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-title">服务器配置</div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-number">4</div>
+                    <div class="step-title">发布确认</div>
+                </div>
+            </div>
+            
+            <!-- 步骤内容 -->
+            <div class="wizard-content">
+                <!-- 步骤1: 版本信息 -->
+                <div id="wizard-step-1" class="wizard-step active">
+                    <div class="wizard-step-content active">
+                        <h4>版本信息</h4>
+                    <div class="form-group">
+                        <label for="wizard-platform">目标平台</label>
+                        <select id="wizard-platform" required>
+                            <option value="win32">Windows</option>
+                            <option value="darwin">macOS</option>
+                            <option value="linux">Linux</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="wizard-version">版本号</label>
+                        <input type="text" id="wizard-version" placeholder="例如: 1.2.3" required>
+                        <small>请使用语义化版本号格式</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="wizard-description">版本描述</label>
+                        <textarea id="wizard-description" placeholder="描述此版本的更新内容..."></textarea>
+                    </div>
+                    </div>
+                </div>
+                
+                <!-- 步骤2: 上传文件 -->
+                <div id="wizard-step-2" class="wizard-step">
+                    <div class="wizard-step-content">
+                        <h4>上传文件</h4>
+                    <div class="wizard-upload-area" id="wizard-upload-area">
+                        <div class="upload-placeholder">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>点击选择文件或拖拽文件到此处</p>
+                            <small>支持 .exe, .dmg, .deb, .rpm, .tar.gz, .zip 格式</small>
+                        </div>
+                        <input type="file" id="wizard-files" multiple accept=".exe,.dmg,.deb,.rpm,.tar.gz,.zip" style="display: none;">
+                    </div>
+                    <div id="wizard-file-list" class="wizard-file-list">
+                        <!-- 文件列表将在这里显示 -->
+                    </div>
+                    </div>
+                </div>
+                
+                <!-- 步骤3: 服务器配置 -->
+                <div id="wizard-step-3" class="wizard-step">
+                    <div class="wizard-step-content">
+                        <h4>服务器配置</h4>
+                    <div class="form-group">
+                        <label for="wizard-custom-url">自定义下载地址（可选）</label>
+                        <input type="url" id="wizard-custom-url" placeholder="https://your-cdn.com/downloads">
+                        <small>留空则使用默认服务器地址</small>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="wizard-auto-update"> 启用自动更新检查
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="wizard-release-notes">发布说明</label>
+                        <textarea id="wizard-release-notes" placeholder="详细的发布说明..."></textarea>
+                    </div>
+                    </div>
+                </div>
+                
+                <!-- 步骤4: 发布确认 -->
+                <div id="wizard-step-4" class="wizard-step">
+                    <div class="wizard-step-content">
+                        <h4>发布确认</h4>
+                    <div class="wizard-summary">
+                        <div class="summary-item">
+                            <strong>平台:</strong> <span id="summary-platform"></span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>版本:</strong> <span id="summary-version"></span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>文件数量:</strong> <span id="summary-files"></span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>下载地址:</strong> <span id="summary-url"></span>
+                        </div>
+                    </div>
+                    <div class="wizard-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>发布后，此版本将立即可供用户下载和更新。请确认所有信息无误。</p>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 向导操作按钮 -->
+            <div class="wizard-actions">
+                <button type="button" class="btn btn-secondary" id="wizardPrevBtn" style="display: none;">上一步</button>
+                <button type="button" class="btn btn-secondary" id="wizardCancelBtn">取消</button>
+                <button type="button" class="btn btn-primary" id="wizardNextBtn">下一步</button>
+                <button type="button" class="btn btn-success" id="wizardFinishBtn" style="display: none;">发布版本</button>
+            </div>
+            
+            <!-- 发布进度 -->
+            <div id="wizard-progress" class="wizard-progress" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="wizard-progress-fill"></div>
+                </div>
+                <div class="progress-text" id="wizard-progress-text">准备发布...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
