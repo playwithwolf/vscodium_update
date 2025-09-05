@@ -270,6 +270,39 @@ A: 使用 `chmod 755` 设置正确的文件权限
 **Q: WSL2 重启后服务器停止**
 A: 使用 PM2 或创建系统服务来自动启动
 
+**Q: 浏览器显示 Cross-Origin-Opener-Policy 错误，admin.css 和 admin.js 加载失败**
+A: 这是 WSL2 环境下的安全策略问题，有以下解决方案：
+
+1. **推荐方案：启用 HTTPS**
+   ```bash
+   # 生成自签名证书
+   npm run generate-ssl
+   
+   # 编辑 .env 文件
+   echo "HTTPS_ENABLED=true" >> .env
+   echo "SSL_CERT_PATH=$(pwd)/ssl/server.crt" >> .env
+   echo "SSL_KEY_PATH=$(pwd)/ssl/server.key" >> .env
+   
+   # 重启服务器
+   pm2 restart vscodium-update-server
+   
+   # 访问 HTTPS 地址
+   # https://localhost:3000/admin
+   ```
+
+2. **临时方案：使用 WSL2 IP 地址**
+   ```bash
+   # 获取 WSL2 IP 地址
+   ip addr show eth0 | grep inet | awk '{print $2}' | cut -d/ -f1
+   
+   # 使用 WSL2 IP 访问（替换为实际 IP）
+   # http://172.x.x.x:3000/admin
+   ```
+
+3. **浏览器方案：禁用安全策略（仅开发环境）**
+   - Chrome: 启动时添加 `--disable-web-security --disable-features=VizDisplayCompositor`
+   - 注意：这会降低浏览器安全性，仅用于开发测试
+
 ### 自动启动配置
 
 ```bash

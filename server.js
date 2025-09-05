@@ -9,6 +9,8 @@ const semver = require('semver');
 const helmet = require('helmet');
 const multer = require('multer');
 const crypto = require('crypto');
+const https = require('https');
+const http = require('http');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,15 +21,16 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https:", "https://cdnjs.cloudflare.com"],
       imgSrc: ["'self'", "data:"],
-      fontSrc: ["'self'", "https:", "data:"],
+      fontSrc: ["'self'", "https:", "data:", "https://cdnjs.cloudflare.com"],
       objectSrc: ["'none'"],
       baseUri: ["'self'"],
       formAction: ["'self'"],
       frameAncestors: ["'self'"]
     }
-  }
+  },
+  crossOriginOpenerPolicy: false // 禁用 COOP 以避免 WSL2 环境下的问题
 }));
 app.use(cors());
 app.use(express.json());
@@ -742,14 +745,54 @@ app.use((err, req, res, next) => {
 });
 
 // 启动服务器
-app.listen(PORT, () => {
-  console.log(`VSCodium 更新服务器运行在端口 ${PORT}`);
-  console.log(`访问 http://localhost:${PORT} 查看 API 文档`);
-  
-  // 确保必要的目录存在
-  ['win32', 'darwin', 'linux'].forEach(platform => {
-    fs.ensureDirSync(path.join(__dirname, 'releases', platform));
+const HTTPS_ENABLED = process.env.HTTPS_ENABLED === 'true';
+const SSL_CERT_PATH = process.env.SSL_CERT_PATH;
+const SSL_KEY_PATH = process.env.SSL_KEY_PATH;
+
+if (HTTPS_ENABLED && SSL_CERT_PATH && SSL_KEY_PATH) {
+  // HTTPS 服务器
+  try {
+    const options = {
+      key: fs.readFileSync(SSL_KEY_PATH),
+      cert: fs.readFileSync(SSL_CERT_PATH)
+    };
+    
+    https.createServer(options, app).listen(PORT, () => {
+      console.log(`VSCodium 更新服务器 (HTTPS) 运行在端口 ${PORT}`);
+      console.log(`访问 https://localhost:${PORT} 查看 API 文档`);
+      console.log(`管理界面: https://localhost:${PORT}/admin`);
+      
+      // 确保必要的目录存在
+      ['win32', 'darwin', 'linux'].forEach(platform => {
+        fs.ensureDirSync(path.join(__dirname, 'releases', platform));
+      });
+    });
+  } catch (error) {
+    console.error('HTTPS 启动失败:', error.message);
+    console.log('回退到 HTTP 模式...');
+    startHttpServer();
+  }
+} else {
+  startHttpServer();
+}
+
+function startHttpServer() {
+  app.listen(PORT, () => {
+    console.log(`VSCodium 更新服务器 (HTTP) 运行在端口 ${PORT}`);
+    console.log(`访问 http://localhost:${PORT} 查看 API 文档`);
+    console.log(`管理界面: http://localhost:${PORT}/admin`);
+    console.log('');
+    console.log('⚠️  WSL2 环境提示:');
+    console.log('   如果遇到 Cross-Origin-Opener-Policy 错误，请:');
+    console.log('   1. 使用 https://localhost:3000/admin 访问 (推荐)');
+    console.log('   2. 或配置 SSL 证书启用 HTTPS');
+    console.log('   3. 或在浏览器中访问 http://WSL2-IP:3000/admin');
+    
+    // 确保必要的目录存在
+    ['win32', 'darwin', 'linux'].forEach(platform => {
+      fs.ensureDirSync(path.join(__dirname, 'releases', platform));
+    });
   });
-});
+}
 
 module.exports = app;
