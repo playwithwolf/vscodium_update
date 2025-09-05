@@ -251,6 +251,73 @@ pm2 status
 
 ---
 
+## 🌐 网络访问配置
+
+### 从其他电脑访问 WSL2 服务器
+
+服务器现在默认监听 `0.0.0.0:3000`，支持从局域网内的其他电脑访问。
+
+#### 1. 获取访问地址
+
+```bash
+# 方法一：获取 WSL2 的 IP 地址
+ip addr show eth0 | grep 'inet ' | awk '{print $2}' | cut -d/ -f1
+
+# 方法二：获取 Windows 主机 IP（推荐）
+ip route show | grep default | awk '{print $3}'
+
+# 方法三：在 Windows 中查看 IP
+# 打开 PowerShell 运行：ipconfig
+```
+
+#### 2. 访问方式
+
+**本地访问（WSL2 内部）：**
+```
+http://localhost:3000
+http://localhost:3000/admin
+```
+
+**Windows 主机访问：**
+```
+http://localhost:3000
+http://127.0.0.1:3000
+```
+
+**局域网其他电脑访问：**
+```
+http://WINDOWS-HOST-IP:3000
+http://WINDOWS-HOST-IP:3000/admin
+```
+
+#### 3. 防火墙配置
+
+**Windows 防火墙设置：**
+```powershell
+# 在 Windows PowerShell（管理员模式）中运行
+New-NetFirewallRule -DisplayName "VSCodium Update Server" -Direction Inbound -Protocol TCP -LocalPort 3000 -Action Allow
+```
+
+**或者通过图形界面：**
+1. 打开 Windows 防火墙设置
+2. 点击「高级设置」
+3. 选择「入站规则」→「新建规则」
+4. 选择「端口」→「TCP」→「特定本地端口」→ 输入 `3000`
+5. 选择「允许连接」
+
+#### 4. 网络测试
+
+```bash
+# 在 WSL2 中测试服务器是否正常运行
+curl http://localhost:3000
+
+# 在其他电脑上测试网络连通性
+# 替换 YOUR-WINDOWS-IP 为实际 IP 地址
+curl http://YOUR-WINDOWS-IP:3000
+```
+
+---
+
 ## ⚠️ 注意事项
 
 ### 性能优化
@@ -261,8 +328,11 @@ pm2 status
 
 ### 常见问题
 
-**Q: 无法从 Windows 访问 WSL2 服务器**
-A: 检查防火墙设置，确保 `HOST=0.0.0.0` 在 `.env` 文件中
+**Q: 无法从其他电脑访问 WSL2 服务器**
+A: 服务器现在默认监听 `0.0.0.0:3000`，支持网络访问。如果仍无法访问，请检查：
+   - Windows 防火墙是否允许端口 3000
+   - WSL2 网络配置是否正确
+   - 使用正确的 IP 地址访问
 
 **Q: 文件权限问题**
 A: 使用 `chmod 755` 设置正确的文件权限

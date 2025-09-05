@@ -757,10 +757,11 @@ if (HTTPS_ENABLED && SSL_CERT_PATH && SSL_KEY_PATH) {
       cert: fs.readFileSync(SSL_CERT_PATH)
     };
     
-    https.createServer(options, app).listen(PORT, () => {
-      console.log(`VSCodium 更新服务器 (HTTPS) 运行在端口 ${PORT}`);
-      console.log(`访问 https://localhost:${PORT} 查看 API 文档`);
-      console.log(`管理界面: https://localhost:${PORT}/admin`);
+    https.createServer(options, app).listen(PORT, '0.0.0.0', () => {
+      console.log(`VSCodium 更新服务器 (HTTPS) 运行在 0.0.0.0:${PORT}`);
+      console.log(`本地访问: https://localhost:${PORT} 查看 API 文档`);
+      console.log(`本地管理界面: https://localhost:${PORT}/admin`);
+      console.log(`网络访问: https://YOUR-IP:${PORT} (将 YOUR-IP 替换为实际 IP 地址)`);
       
       // 确保必要的目录存在
       ['win32', 'darwin', 'linux'].forEach(platform => {
@@ -777,16 +778,16 @@ if (HTTPS_ENABLED && SSL_CERT_PATH && SSL_KEY_PATH) {
 }
 
 function startHttpServer() {
-  app.listen(PORT, () => {
-    console.log(`VSCodium 更新服务器 (HTTP) 运行在端口 ${PORT}`);
-    console.log(`访问 http://localhost:${PORT} 查看 API 文档`);
-    console.log(`管理界面: http://localhost:${PORT}/admin`);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`VSCodium 更新服务器 (HTTP) 运行在 0.0.0.0:${PORT}`);
+    console.log(`本地访问: http://localhost:${PORT} 查看 API 文档`);
+    console.log(`本地管理界面: http://localhost:${PORT}/admin`);
+    console.log(`网络访问: http://YOUR-IP:${PORT} (将 YOUR-IP 替换为实际 IP 地址)`);
     console.log('');
-    console.log('⚠️  WSL2 环境提示:');
-    console.log('   如果遇到 Cross-Origin-Opener-Policy 错误，请:');
-    console.log('   1. 使用 https://localhost:3000/admin 访问 (推荐)');
-    console.log('   2. 或配置 SSL 证书启用 HTTPS');
-    console.log('   3. 或在浏览器中访问 http://WSL2-IP:3000/admin');
+    console.log('🌐 网络访问提示:');
+    console.log('   - WSL2 环境: 使用 Windows 主机 IP 地址访问');
+    console.log('   - 局域网访问: 确保防火墙允许该端口');
+    console.log('   - 获取 IP: 在 WSL2 中运行 `ip route show | grep default` 查看网关 IP');
     
     // 确保必要的目录存在
     ['win32', 'darwin', 'linux'].forEach(platform => {
