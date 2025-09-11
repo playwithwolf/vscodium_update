@@ -411,6 +411,98 @@ app.get('/versions', (req, res) => {
   res.json(versions);
 });
 
+// 生成 latest.yml 内容的函数
+function generateLatestYml(platform, versions) {
+  if (!versions[platform] || !versions[platform].files || versions[platform].files.length === 0) {
+    return null;
+  }
+  
+  const platformData = versions[platform];
+  const mainFile = platformData.files[0]; // 主安装文件
+  
+  // 构建文件列表
+  const files = platformData.files.map(file => {
+    let fileUrl;
+    const customDownloadUrl = platformData.downloadUrl || process.env.CUSTOM_DOWNLOAD_URL;
+    
+    if (customDownloadUrl) {
+      fileUrl = `${customDownloadUrl.replace(/\/$/, '')}/${platform}/${file.name}`;
+    } else if (file.customUrl) {
+      fileUrl = file.customUrl;
+    } else {
+      // 使用相对路径，让客户端自动构建完整URL
+      fileUrl = file.name;
+    }
+    
+    return {
+      url: fileUrl,
+      sha512: file.checksum,
+      size: file.size
+    };
+  });
+  
+  const ymlContent = {
+    version: platformData.version,
+    files: files,
+    path: mainFile.name,
+    sha512: mainFile.checksum,
+    releaseDate: platformData.releaseDate || new Date().toISOString()
+  };
+  
+  // 转换为YAML格式
+  let yamlStr = `version: ${ymlContent.version}\n`;
+  yamlStr += `files:\n`;
+  
+  ymlContent.files.forEach(file => {
+    yamlStr += `  - url: ${file.url}\n`;
+    yamlStr += `    sha512: ${file.sha512}\n`;
+    yamlStr += `    size: ${file.size}\n`;
+  });
+  
+  yamlStr += `path: ${ymlContent.path}\n`;
+  yamlStr += `sha512: ${ymlContent.sha512}\n`;
+  yamlStr += `releaseDate: '${ymlContent.releaseDate}'\n`;
+  
+  return yamlStr;
+}
+
+// latest.yml API - electron-updater 兼容
+app.get('/latest.yml', (req, res) => {
+  const versions = getVersions();
+  
+  // 尝试从查询参数获取平台
+  let platform = req.query.platform;
+  
+  // 如果没有平台参数，尝试从User-Agent推断
+  if (!platform) {
+    const userAgent = req.get('User-Agent') || '';
+    if (userAgent.includes('Windows') || userAgent.includes('win32')) {
+      platform = 'win32';
+    } else if (userAgent.includes('Mac') || userAgent.includes('darwin')) {
+      platform = 'darwin';
+    } else if (userAgent.includes('Linux') || userAgent.includes('linux')) {
+      platform = 'linux';
+    } else {
+      // 默认使用 win32
+      platform = 'win32';
+    }
+  }
+  
+  console.log(`latest.yml 请求: 平台=${platform}, User-Agent=${req.get('User-Agent')}`);
+  
+  const ymlContent = generateLatestYml(platform, versions);
+  
+  if (!ymlContent) {
+    console.log(`latest.yml 404: 平台 ${platform} 没有可用版本`);
+    return res.status(404).send('No releases available for this platform');
+  }
+  
+  res.set('Content-Type', 'text/yaml; charset=utf-8');
+  res.send(ymlContent);
+});
+
+// 移除了 latest-platform.yml 路由，统一使用 latest.yml?platform=xxx
+
 // 管理界面 API 端点
 
 // 获取版本信息 API（管理界面用）

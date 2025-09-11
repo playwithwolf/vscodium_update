@@ -1,0 +1,10 @@
+cd /home/TL/vscodium_update/ssl
+
+# 备份旧证书
+mv server.crt server.crt.bak
+mv server.key server.key.bak
+
+# 生成新的包含IP地址的证书
+openssl req -x509 -newkey rsa:4096 -keyout server.key -out server.crt -days 365 -nodes \
+  -subj "/C=CN/ST=State/L=City/O=Organization/CN=192.168.0.3" \
+  -addext "subjectAltName=IP:192.168.0.3"
