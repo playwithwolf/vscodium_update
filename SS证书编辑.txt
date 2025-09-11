@@ -8,3 +8,5 @@ mv server.key server.key.bak
 openssl req -x509 -newkey rsa:4096 -keyout server.key -out server.crt -days 365 -nodes \
   -subj "/C=CN/ST=State/L=City/O=Organization/CN=192.168.0.3" \
   -addext "subjectAltName=IP:192.168.0.3"
+
+  从 chrome浏览器导出证书后 在使用的机器上安装，选择系统安装，选择保存在根目录下受信目录下
