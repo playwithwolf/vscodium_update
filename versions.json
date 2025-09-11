@@ -1,0 +1,35 @@
+{
+  "win32": {
+    "version": "1.95.3",
+    "files": [
+      {
+        "name": "VSCodium-win32-x64-1.95.3.exe",
+        "size": 104857600,
+        "checksum": "abc123def456789012345678901234567890123456789012345678901234567890"
+      }
+    ],
+    "releaseDate": "2025-01-11T12:00:00.000Z"
+  },
+  "darwin": {
+    "version": "1.95.3",
+    "files": [
+      {
+        "name": "VSCodium-darwin-universal-1.95.3.dmg",
+        "size": 157286400,
+        "checksum": "def456abc789012345678901234567890123456789012345678901234567890123"
+      }
+    ],
+    "releaseDate": "2025-01-11T12:00:00.000Z"
+  },
+  "linux": {
+    "version": "1.95.3",
+    "files": [
+      {
+        "name": "VSCodium-linux-x64-1.95.3.tar.gz",
+        "size": 125829120,
+        "checksum": "789012def456abc345678901234567890123456789012345678901234567890def"
+      }
+    ],
+    "releaseDate": "2025-01-11T12:00:00.000Z"
+  }
+}
