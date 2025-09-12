@@ -270,7 +270,7 @@ function saveVersions(versions) {
 // 生成文件校验和
 function generateChecksum(filePath) {
   const fileBuffer = fs.readFileSync(filePath);
-  return crypto.createHash('sha256').update(fileBuffer).digest('hex');
+  return crypto.createHash('sha512').update(fileBuffer).digest('hex');
 }
 
 // 检查更新 API - electron-updater 兼容
@@ -374,7 +374,7 @@ app.post('/upload/:platform', upload.array('files'), (req, res) => {
     const stats = fs.statSync(filePath);
     
     const fileInfo = {
-      name: file.filename, // 使用重命名后的文件名（已包含版本号）
+      name: `/download/${platform}/${file.filename}`, // 使用完整下载路径格式
       size: stats.size,
       checksum: generateChecksum(filePath)
     };
@@ -570,7 +570,7 @@ app.post('/api/upload/:platform', upload.array('files'), (req, res) => {
     const stats = fs.statSync(filePath);
     
     const fileInfo = {
-      name: file.filename, // 使用重命名后的文件名（已包含版本号）
+      name: `/download/${platform}/${file.filename}`, // 使用完整下载路径格式
       size: stats.size,
       checksum: generateChecksum(filePath)
     };
