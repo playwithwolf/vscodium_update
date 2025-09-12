@@ -1,14 +1,15 @@
 {
   "win32": {
-    "version": "1.95.3",
+    "version": "1.0.0",
     "files": [
       {
-        "name": "VSCodium-win32-x64-1.95.3.exe",
-        "size": 104857600,
-        "checksum": "abc123def456789012345678901234567890123456789012345678901234567890"
+        "name": "VSCodeSetup-1.0.0.exe",
+        "size": 120386720,
+        "checksum": "6f6b1dcddfe1592dfc362d0ac8983805d7cfd460409a24881ae4c0a5de36772c"
       }
     ],
-    "releaseDate": "2025-01-11T12:00:00.000Z"
+    "releaseDate": "2025-09-11T09:05:23.520Z",
+    "lastUpdated": 1757581523520
   },
   "darwin": {
     "version": "1.95.3",

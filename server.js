@@ -45,7 +45,17 @@ const storage = multer.diskStorage({
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
-    cb(null, file.originalname);
+    // 从请求体中获取版本号
+    const version = req.body.version;
+    if (version && file.originalname) {
+      const ext = path.extname(file.originalname);
+      const nameWithoutExt = path.basename(file.originalname, ext);
+      // 生成带版本号的文件名
+      const versionedFilename = `${nameWithoutExt}-${version}${ext}`;
+      cb(null, versionedFilename);
+    } else {
+      cb(null, file.originalname);
+    }
   }
 });
 
@@ -364,14 +374,15 @@ app.post('/upload/:platform', upload.array('files'), (req, res) => {
     const stats = fs.statSync(filePath);
     
     const fileInfo = {
-      name: file.filename,
+      name: file.filename, // 使用重命名后的文件名（已包含版本号）
       size: stats.size,
       checksum: generateChecksum(filePath)
     };
     
     // 如果有为此文件指定的自定义 URL，添加到文件信息中
-    if (customUrlMap[file.filename]) {
-      fileInfo.customUrl = customUrlMap[file.filename];
+    // 注意：这里需要使用原始文件名作为键来查找自定义URL
+    if (customUrlMap[file.originalname]) {
+      fileInfo.customUrl = customUrlMap[file.originalname];
     }
     
     return fileInfo;
@@ -559,7 +570,7 @@ app.post('/api/upload/:platform', upload.array('files'), (req, res) => {
     const stats = fs.statSync(filePath);
     
     const fileInfo = {
-      name: file.filename,
+      name: file.filename, // 使用重命名后的文件名（已包含版本号）
       size: stats.size,
       checksum: generateChecksum(filePath)
     };

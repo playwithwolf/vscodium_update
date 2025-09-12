@@ -1266,7 +1266,7 @@ function updateWizardStep() {
     }
     
     // 更新步骤指示器
-    document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
+    document.querySelectorAll('.wizard-steps .step').forEach((indicator, index) => {
         indicator.classList.remove('active', 'completed');
         if (index + 1 < currentWizardStep) {
             indicator.classList.add('completed');

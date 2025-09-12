@@ -1,1 +1,30 @@
-[]
+[
+  {
+    "id": "1757580819741",
+    "platform": "win32",
+    "version": "1.0.0",
+    "files": [
+      {
+        "filename": "VSCodeSetup.exe",
+        "size": 120386720,
+        "checksum": "6f6b1dcddfe1592dfc362d0ac8983805d7cfd460409a24881ae4c0a5de36772c"
+      }
+    ],
+    "fileCount": 1,
+    "releaseDate": "2025-09-11T08:53:39.741Z"
+  },
+  {
+    "id": "1757581523523",
+    "platform": "win32",
+    "version": "1.0.0",
+    "files": [
+      {
+        "filename": "VSCodeSetup-1.0.0.exe",
+        "size": 120386720,
+        "checksum": "6f6b1dcddfe1592dfc362d0ac8983805d7cfd460409a24881ae4c0a5de36772c"
+      }
+    ],
+    "fileCount": 1,
+    "releaseDate": "2025-09-11T09:05:23.523Z"
+  }
+]
