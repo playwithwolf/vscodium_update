@@ -45,6 +45,23 @@ body {
     color: #ffd700;
 }
 
+.version-info {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.version-badge {
+    display: inline-block;
+    background: rgba(255, 215, 0, 0.2);
+    color: #ffd700;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
 .sidebar-menu {
     list-style: none;
     padding: 20px 0;
