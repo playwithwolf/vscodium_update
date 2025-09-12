@@ -804,6 +804,25 @@ app.delete('/api/version-history/:historyId', (req, res) => {
     }
     
     const deletedHistory = versionHistory[historyIndex];
+    
+    // 检查是否为当前活跃版本，防止删除当前正在使用的版本
+    const versionsPath = path.join(__dirname, 'versions.json');
+    if (fs.existsSync(versionsPath)) {
+        try {
+            const versionsContent = fs.readFileSync(versionsPath, 'utf8');
+            const currentVersions = JSON.parse(versionsContent);
+            
+            const currentVersion = currentVersions[deletedHistory.platform];
+            if (currentVersion && currentVersion.version === deletedHistory.version) {
+                return res.status(400).json({ 
+                    error: `无法删除当前活跃版本 ${deletedHistory.platform} v${deletedHistory.version}，请先更新到其他版本后再删除此历史记录` 
+                });
+            }
+        } catch (error) {
+            console.error('读取当前版本信息失败:', error);
+        }
+    }
+    
     versionHistory.splice(historyIndex, 1);
     
     fs.writeFileSync(historyPath, JSON.stringify(versionHistory, null, 2));
