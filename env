@@ -1,0 +1,38 @@
+# VSCodium 更新服务器环境配置示例
+# 复制此文件为 .env 并根据需要修改配置
+
+# 服务器端口
+PORT=3000
+
+# 运行环境
+NODE_ENV=production
+
+# 服务器主机地址（用于生成下载链接）
+SERVER_HOST=localhost
+
+# 自定义下载地址基础 URL（可选）
+# 如果设置，所有文件下载将使用此地址而不是服务器地址
+# 格式: https://your-cdn.com/releases
+CUSTOM_DOWNLOAD_URL=
+
+# 是否启用 HTTPS
+HTTPS_ENABLED=true
+
+# SSL 证书路径（如果启用 HTTPS）
+SSL_CERT_PATH=/home/baijie/vscodium_update/ssl/server.crt
+SSL_KEY_PATH=/home/baijie/vscodium_update/ssl/server.key
+
+# 文件上传限制（MB）
+MAX_FILE_SIZE=500
+
+# API 密钥（可选，用于保护上传接口）
+API_KEY=
+
+# 日志级别
+LOG_LEVEL=info
+
+# 数据库配置（如果需要持久化存储）
+# DATABASE_URL=
+
+# Redis 配置（如果需要缓存）
+# REDIS_URL=
